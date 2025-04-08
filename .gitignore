@@ -1,0 +1,10 @@
+# Ignore compiled output
+/target
+**/target
+
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
