@@ -8,3 +8,4 @@
 
 # Temporary files
 *.tmp
+.env_postgres
