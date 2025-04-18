@@ -10,6 +10,6 @@ actix-cors = "0.6"
 
 serde = { version = "1.0.197", features = ["derive"] }
 
-core = { path = "../core"}
+coremod = { path = "../coremod"}
 dal = { path = "../dal/", features = ["sqlx-postgres"]}
 glue = { path = "../../../glue", features = ["actix"]}
