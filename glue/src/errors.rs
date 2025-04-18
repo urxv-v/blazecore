@@ -16,3 +16,21 @@ pub enum NanoServiceErrorStatus {
     #[error("Unauthorized")]
     Unauthorized,
 }
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct NanoServiceError {
+    pub message: String,
+    pub status: NanoServiceErrorStatus,
+}
+
+impl fmt::Display for NanoServiceError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.message)
+    }
+}
+
+impl NanoServiceError {
+    pub fn new(message: String, status: NanoServiceErrorStatus) -> NanoServiceError {
+        NanoServiceError { message, status }
+    }
+}
