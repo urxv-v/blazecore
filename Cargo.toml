@@ -5,6 +5,7 @@ edition = "2024"
 [workspace]
 resolver = "2"
 members = [
+	"glue",
 	"nanoservices/experiments/coremod",
 	"nanoservices/experiments/dal",
 	"nanoservices/experiments/actix", 
