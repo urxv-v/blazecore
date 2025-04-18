@@ -4,3 +4,12 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+tokio = { version = "1.36.0", features = ["full"] }
+actix-web = "4.5.1"
+actix-cors = "0.6"  
+
+serde = { version = "1.0.197", features = ["derive"] }
+
+core = { path = "../core"}
+dal = { path = "../dal/", features = ["sqlx-postgres"]}
+glue = { path = "../../../glue", features = ["actix"]}
