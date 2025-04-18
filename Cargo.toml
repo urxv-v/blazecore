@@ -1,0 +1,13 @@
+[package]
+name = "blazecore"
+version = "0.1.0"
+edition = "2024"
+[workspace]
+resolver = "2"
+members = [
+	"nanoservices/experiments/coremod",
+	"nanoservices/experiments/dal",
+	"nanoservices/experiments/actix", 
+]
+[dependencies]
+sqlx = { version = "0.6", features = ["postgres", "runtime-tokio-rustls"] }
