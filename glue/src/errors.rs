@@ -1,6 +1,9 @@
 use thiserror::Error;
 use serde::{Serialize, Deserialize};
 
+#[cfg(feature = "actix")]
+use actix_web::{error::ResponseError, http::StatusCode, HttpResponse};
+
 #[derive(Error, Debug, Serialize, Deserialize, PartialEq)]
 pub enum NanoServiceErrorStatus {
     #[error("Requested resource was not found")]
@@ -32,5 +35,23 @@ impl fmt::Display for NanoServiceError {
 impl NanoServiceError {
     pub fn new(message: String, status: NanoServiceErrorStatus) -> NanoServiceError {
         NanoServiceError { message, status }
+    }
+}
+
+#[cfg(feature = "actix")]
+impl ResponseError for NanoServiceError {
+    fn status_code(&self) -> StatusCode {
+        match self.status {
+            NanoServiceErrorStatus::NotFound => StatusCode::NOT_FOUND,
+            NanoServiceErrorStatus::Forbidden => StatusCode::FORBIDDEN,
+            NanoServiceErrorStatus::Unknown => StatusCode::INTERNAL_SERVER_ERROR,
+            NanoServiceErrorStatus::BadRequest => StatusCode::BAD_REQUEST,
+            NanoServiceErrorStatus::Conflict => StatusCode::CONFLICT,
+            NanoServiceErrorStatus::Unauthorized => StatusCode::UNAUTHORIZED,
+        }
+    }
+
+    fn error_response(&self) -> HttpResponse {
+        HttpResponse::build(self.status_code()).json(self)
     }
 }
