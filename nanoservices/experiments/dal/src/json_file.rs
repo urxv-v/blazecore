@@ -1,5 +1,7 @@
-use glue::errors::{NanoServiceError, NanoServiceErrorStatus};
-use glue::safe_eject;
+use glue::{
+    safe_eject,
+    errors::{NanoServiceError, NanoServiceErrorStatus},
+};
 use serde::{de::DeserializeOwned, Serialize};
 use std::collections::HashMap;
 use std::env;
@@ -12,7 +14,7 @@ fn json_file_path() -> String {
     env::var("JSON_STORE_PATH").unwrap_or_else(|_| DEFAULT_JSON_PATH.to_string())
 }
 
-fn open_json_file_rw() -> Result<File, NanoServiceError> {
+fn open_json_file_read_write() -> Result<File, NanoServiceError> {
     let file_path = get_json_path();
     let file = safe_eject!(
         OpenOptions::new()
@@ -26,7 +28,7 @@ fn open_json_file_rw() -> Result<File, NanoServiceError> {
     Ok(file)
 }
 
-fn get_write_handle() -> Result<File, NanoServiceError> {
+fn open_json_file_write_truncate() -> Result<File, NanoServiceError> {
     let file_path = get_json_path();
     let file = safe_eject!(
         OpenOptions::new()
