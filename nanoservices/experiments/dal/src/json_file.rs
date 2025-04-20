@@ -65,3 +65,32 @@ pub fn save_experiments<T: Serialize>( experiments: &HashMap<String, T>) -> Resu
     )?;
     Ok(())
 }
+
+pub fn get_experiment<T: DeserializeOwned + Clone>(id: &str) -> Result<T, NanoServiceError> {
+    let experiments = get_experiments::<T>()?;
+    match experiments.get(id) {
+        Some(exp) => Ok(exp.clone()),
+        None => Err(NanoServiceError::new(
+            format!("Experiment with id {} not found", id),
+            NanoServiceErrorStatus::NotFound,
+        )),
+    }
+}
+
+pub fn get_experiments<T: DeserializeOwned>() -> Result<HashMap<String, T>, NanoServiceError> {
+    let mut file = open_json_file_read_write()?; // previously get_handle
+    let mut contents = String::new();
+
+    safe_eject!(
+        file.read_to_string(&mut contents),
+        NanoServiceErrorStatus::Unknown,
+        "Error reading JSON file to get all experiments"
+    )?;
+
+    let experiments: HashMap<String, T> = safe_eject!(
+        serde_json::from_str(&contents.trim()),
+        NanoServiceErrorStatus::Unknown,
+        "Error parsing JSON file"
+    )?;
+    Ok(experiments)
+}
