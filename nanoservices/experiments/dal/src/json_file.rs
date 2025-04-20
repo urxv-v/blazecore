@@ -41,3 +41,27 @@ fn open_json_file_write_truncate() -> Result<File, NanoServiceError> {
     )?;
     Ok(file)
 }
+
+pub fn save_experiment<T>(id: &str, experiment: &T) -> Result<(), NanoServiceError>
+where
+    T: Serialize + DeserializeOwned + Clone,
+{
+    let mut experiments = get_experiments::<T>().unwrap_or_else(|_| HashMap::new());
+    experiments.insert(id.to_string(), experiment.clone());
+    save_experiments(&experiments)
+}
+
+pub fn save_experiments<T: Serialize>( experiments: &HashMap<String, T>) -> Result<(), NanoServiceError> {
+    let mut file = open_json_file_write_truncate()?;
+    let json = safe_eject!(
+        serde_json::to_string_pretty(experiments),
+        NanoServiceErrorStatus::Unknown,
+        "Error serializing JSON"
+    )?;
+    safe_eject!(
+        file.write_all(json.as_bytes()),
+        NanoServiceErrorStatus::Unknown,
+        "Error writing JSON file"
+    )?;
+    Ok(())
+}
