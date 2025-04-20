@@ -94,3 +94,21 @@ pub fn get_experiments<T: DeserializeOwned>() -> Result<HashMap<String, T>, Nano
     )?;
     Ok(experiments)
 }
+
+pub fn delete_experiment<T>(id: &str) -> Result<(), NanoServiceError>
+where
+    T: Serialize + DeserializeOwned + Clone + std::fmt::Debug,
+{
+    let mut experiments = get_experiments::<T>().unwrap_or_default();
+
+    match experiments.remove(id) {
+        Some(_) => {
+            save_experiments(&experiments)?;
+            Ok(())
+        }
+        None => Err(NanoServiceError::new(
+            format!("Experiment with id {} not found", id),
+            NanoServiceErrorStatus::NotFound,
+        )),
+    }
+}
