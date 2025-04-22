@@ -6,6 +6,9 @@ use super::super::descriptors::JsonFileDescriptor;
 use crate::json_file::get_experiments;
 use std::collections::HashMap;
 
+use crate::connections::sqlx_postgres::SQLX_POSTGRES_POOL;
+use super::super::descriptors::SqlxPostGresDescriptor;
+use glue::errors::NanoServiceErrorStatus;
 
 pub trait GetExperimentByName {
     fn get_experiment_by_name(name: &str) -> 
@@ -51,3 +54,29 @@ async fn json_file_get_by_experiment_name(name: &str) ->
         ))
 }
 
+impl GetExperiments for SqlxPostGresDescriptor {
+    fn get_experiments() ->
+    impl Future<Output = Result<Vec<ExperimentItem>, NanoServiceError>> + Send {
+        sqlx_postgres_get_experiments()
+    }
+}
+
+impl GetExperimentByName for SqlxPostGresDescriptor {
+    fn get_experiment_by_name(name: &str) -> 
+    impl Future<Output = Result<ExperimentItem, NanoServiceError>> + Send {
+        sqlx_postgres_get_by_name(name)
+    }
+}
+
+async fn sqlx_postgres_get_all() ->
+    Result<Vec<ExperimentItem>, NanoServiceError> {
+    let items = sqlx::query_as::<_, ExperimentItem>("
+        SELECT * FROM experiments"
+    ).fetch_all(&*SQLX_POSTGRES_POOL).await.map_err(|e| {
+        NanoServiceError::new(
+            e.to_string(),
+            NanoServiceErrorStatus::Unknown
+        )
+    })?;
+    Ok(items)
+}
