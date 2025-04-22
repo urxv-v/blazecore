@@ -2,21 +2,40 @@ use std::future::Future;
 use glue::errors::NanoServiceError;
 use crate::experiments::schema::ExperimentItem;
 
+#[cfg(feature = "json-file")]
 use super::super::descriptors::JsonFileDescriptor;
+#[cfg(feature = "json-file")]
 use crate::json_file::{get_experiments, save_experiments};
+#[cfg(feature = "json-file")]
 use std::collections::HashMap;
 
+#[cfg(feature = "sqlx-postgres")]
 use crate::connections::sqlx_postgres::SQLX_POSTGRES_POOL;
+#[cfg(feature = "sqlx-postgres")]
 use super::super::descriptors::SqlxPostGresDescriptor;
+#[cfg(any(feature = "json-file", feature = "sqlx-postgres"))]
 use glue::errors::NanoServiceErrorStatus;
 
+pub trait UpdateExperiment {
+    fn update_experiment(item: ExperimentItem) ->
+    impl Future<Output = Result<ExperimentItem, NanoServiceError>> + Send;
+}
+
+#[cfg(feature = "json-file")]
+impl update_experiment for JsonFileDescriptor {
+    fn update_experiment(item: ExperimentItem) ->
+    impl Future<Output = Result<ExperimentItem, NanoServiceError>> + Send {
+        json_file_update_experiment(item)
+    }
+}
 impl UpdateExperiment for JsonFileDescriptor {
     fn update_experiment(item: ExperimentItem) ->
     impl Future<Output = Result<ExperimentItem, NanoServiceError>> + Send {
-        json_file_update_one(item)
+        json_file_update_experiment(item)
     }
 }
 
+#[cfg(feature = "json-file")]
 async fn json_file_update_experiment(item: ExperimentItem) ->
     Result<ExperimentItem, NanoServiceError> {
     let mut experiments = get_experiments::<ExperimentItem>().unwrap_or_else(|_|
@@ -33,13 +52,15 @@ async fn json_file_update_experiment(item: ExperimentItem) ->
     Ok(item)
 }
 
+#[cfg(feature = "sqlx-postgres")]
 impl UpdateExperiment for SqlxPostGresDescriptor {
     fn update_experiment(item: ExperimentItem) ->
     impl Future<Output = Result<ExperimentItem, NanoServiceError>> + Send {
-        sqlx_postgres_update_one(item)
+        sqlx_postgres_update_experiment(item)
     }
 }
 
+#[cfg(feature = "sqlx-postgres")]
 async fn sqlx_postgres_update_experiment(item: ExperimentItem) ->
     Result<ExperimentItem, NanoServiceError> {
     let item = sqlx::query_as::<_, ExperimentItem>("

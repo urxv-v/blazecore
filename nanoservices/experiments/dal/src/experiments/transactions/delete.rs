@@ -2,12 +2,18 @@ use std::future::Future;
 use glue::errors::NanoServiceError;
 use crate::experiments::schema::ExperimentItem;
 
+#[cfg(feature = "json-file")]
 use super::super::descriptors::JsonFileDescriptor;
+#[cfg(feature = "json-file")]
 use crate::json_file::{get_experiments, save_experiments};
+#[cfg(feature = "json-file")]
 use std::collections::HashMap;
 
+#[cfg(feature = "sqlx-postgres")]
 use crate::connections::sqlx_postgres::SQLX_POSTGRES_POOL;
+#[cfg(feature = "sqlx-postgres")]
 use super::super::descriptors::SqlxPostGresDescriptor;
+#[cfg(any(feature = "json-file", feature = "sqlx-postgres"))]
 use glue::errors::NanoServiceErrorStatus;
 
 pub trait DeleteExperiment{
@@ -15,6 +21,7 @@ pub trait DeleteExperiment{
         impl Future<Output = Result<ExperimentItem,NanoServiceError>> + Send;
 }
 
+#[cfg(feature = "json-file")]
 impl DeleteExperiment for JsonFileDescriptor {
     fn delete_experiment(name: String) ->
     impl Future<Output = Result<ExperimentItem, NanoServiceError>> + Send {
@@ -22,6 +29,7 @@ impl DeleteExperiment for JsonFileDescriptor {
     }
 }
 
+#[cfg(feature = "json-file")]
 async fn json_file_delete_experiment(name: String) ->
     Result<ExperimentItem, NanoServiceError> {
     let mut experiments = get_experiments::<ExperimentItem>().unwrap_or_else(|_|
@@ -39,6 +47,7 @@ async fn json_file_delete_experiment(name: String) ->
     Ok(experiment_item)
 }
 
+#[cfg(feature = "sqlx-postgres")]
 impl DeleteExperiment for SqlxPostGresDescriptor {
     fn delete_experiment(name: String) ->
     impl Future<Output = Result<ExperimentItem, NanoServiceError>> + Send {
@@ -46,6 +55,7 @@ impl DeleteExperiment for SqlxPostGresDescriptor {
     }
 }
 
+#[cfg(feature = "sqlx-postgres")]
 async fn sqlx_postgres_delete_experiment(name: String) ->
     Result<ExperimentItem, NanoServiceError> {
     let item = sqlx::query_as::<_, ExperimentItem>("

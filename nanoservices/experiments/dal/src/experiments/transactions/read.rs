@@ -2,12 +2,18 @@ use std::future::Future;
 use glue::errors::NanoServiceError;
 use crate::experiments::schema::ExperimentItem;
 
+#[cfg(feature = "json-file")]
 use super::super::descriptors::JsonFileDescriptor;
+#[cfg(feature = "json-file")]
 use crate::json_file::get_experiments;
+#[cfg(feature = "json-file")]
 use std::collections::HashMap;
 
+#[cfg(feature = "sqlx-postgres")]
 use crate::connections::sqlx_postgres::SQLX_POSTGRES_POOL;
+#[cfg(feature = "sqlx-postgres")]
 use super::super::descriptors::SqlxPostGresDescriptor;
+#[cfg(feature = "sqlx-postgres")]
 use glue::errors::NanoServiceErrorStatus;
 
 pub trait GetExperimentByName {
@@ -15,17 +21,21 @@ pub trait GetExperimentByName {
     impl Future<Output = Result<ExperimentItem, NanoServiceError>> + Send;
 }
 
+#[cfg(feature = "json-file")]
 pub trait GetExperiments {
     fn get_experiments() ->
     impl Future<Output = Result<Vec<ExperimentItem>, NanoServiceError>> + Send;
 }
 
+#[cfg(feature = "json-file")]
 impl GetExperiments for JsonFileDescriptor {
     fn get_experiments() ->
     impl Future<Output = Result<Vec<ExperimentItem>, NanoServiceError>> + Send {
         json_file_get_experiments()
     }
 }
+
+#[cfg(feature = "json-file")]
 async fn json_file_get_experiments() ->
     Result<Vec<ExperimentItem>, NanoServiceError> {
     let experiments = get_experiments::<ExperimentItem>().unwrap_or_else(|_|
@@ -35,14 +45,16 @@ async fn json_file_get_experiments() ->
     Ok(items)
 }
 
+#[cfg(feature = "json-file")]
 impl GetExperimentByName for JsonFileDescriptor {
     fn get_experiment_by_name(name: &str) -> 
     impl Future<Output = Result<ExperimentItem, NanoServiceError>> + Send {
-        json_file_get_by_name(name)
+        json_file_get_by_experiment_name(name)
     }
 }
 
-async fn json_file_get_by_experiment_name(name: &str) -> 
+#[cfg(feature = "json-file")]
+async fn json_file_get_experiment_by_name(name: &str) -> 
     Result<ExperimentItem, NanoServiceError> {
     let experiments = get_experiments::<ExperimentItem>().unwrap_or_else(|_| HashMap::new());
     
@@ -54,6 +66,7 @@ async fn json_file_get_by_experiment_name(name: &str) ->
         ))
 }
 
+#[cfg(feature = "sqlx-postgres")]
 impl GetExperiments for SqlxPostGresDescriptor {
     fn get_experiments() ->
     impl Future<Output = Result<Vec<ExperimentItem>, NanoServiceError>> + Send {
@@ -61,6 +74,7 @@ impl GetExperiments for SqlxPostGresDescriptor {
     }
 }
 
+#[cfg(feature = "sqlx-postgres")]
 impl GetExperimentByName for SqlxPostGresDescriptor {
     fn get_experiment_by_name(name: &str) -> 
     impl Future<Output = Result<ExperimentItem, NanoServiceError>> + Send {
@@ -68,7 +82,8 @@ impl GetExperimentByName for SqlxPostGresDescriptor {
     }
 }
 
-async fn sqlx_postgres_get_all() ->
+#[cfg(feature = "sqlx-postgres")]
+async fn sqlx_postgres_get_experiments() ->
     Result<Vec<ExperimentItem>, NanoServiceError> {
     let items = sqlx::query_as::<_, ExperimentItem>("
         SELECT * FROM experiments"
