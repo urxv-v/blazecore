@@ -21,7 +21,6 @@ pub trait GetExperimentByName {
     impl Future<Output = Result<ExperimentItem, NanoServiceError>> + Send;
 }
 
-#[cfg(feature = "json-file")]
 pub trait GetExperiments {
     fn get_experiments() ->
     impl Future<Output = Result<Vec<ExperimentItem>, NanoServiceError>> + Send;
