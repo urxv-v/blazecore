@@ -74,14 +74,6 @@ impl GetExperiments for SqlxPostGresDescriptor {
 }
 
 #[cfg(feature = "sqlx-postgres")]
-impl GetExperimentByName for SqlxPostGresDescriptor {
-    fn get_experiment_by_name(name: &str) -> 
-    impl Future<Output = Result<ExperimentItem, NanoServiceError>> + Send {
-        sqlx_postgres_get_by_name(name)
-    }
-}
-
-#[cfg(feature = "sqlx-postgres")]
 async fn sqlx_postgres_get_experiments() ->
     Result<Vec<ExperimentItem>, NanoServiceError> {
     let items = sqlx::query_as::<_, ExperimentItem>("
@@ -94,3 +86,30 @@ async fn sqlx_postgres_get_experiments() ->
     })?;
     Ok(items)
 }
+
+#[cfg(feature = "sqlx-postgres")]
+impl GetExperimentByName for SqlxPostGresDescriptor {
+    fn get_experiment_by_name(name: &str) -> 
+    impl Future<Output = Result<ExperimentItem, NanoServiceError>> + Send {
+        sqlx_postgres_get_experiment_by_name(name)
+    }
+}
+
+
+#[cfg(feature = "sqlx-postgres")]
+async fn sqlx_postgres_get_experiment_by_name(name: &str) ->
+Result<ExperimentItem, NanoServiceError> {
+    let item = sqlx::query_as::<_, ExperimentItem>(
+    "SELECT * FROM experiments WHERE name = $1"
+    )
+    .bind(name)
+    .fetch_one(&*SQLX_POSTGRES_POOL)
+    .await
+    .map_err(|e| {
+        NanoServiceError::new(e.to_string(),
+        NanoServiceErrorStatus::NotFound)
+    })?;
+
+    Ok(item)
+}
+
