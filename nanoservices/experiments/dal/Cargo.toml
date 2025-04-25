@@ -3,6 +3,10 @@ name = "dal"
 version = "0.1.0"
 edition = "2024"
 
+[features]
+json-file = ["serde_json"]
+sqlx-postgres = ["sqlx", "once_cell"]
+
 [dependencies]
 serde ={ version="1.0.197", features = ["derive"]}
 serde_json = { version="1.0.114", optional = true }
