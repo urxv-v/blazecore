@@ -54,7 +54,7 @@ impl SaveExperiment for SqlxPostGresDescriptor {
     fn save_experiment(item: NewExperimentItem) ->
     impl Future<Output = Result<ExperimentItem, NanoServiceError>> + Send
     {
-        sqlx_postgres_save_one(item)
+        sqlx_postgres_save_experiment(item)
     }
 }
 
@@ -62,7 +62,7 @@ impl SaveExperiment for SqlxPostGresDescriptor {
 async fn sqlx_postgres_save_experiment(item: NewExperimentItem)
     -> Result<ExperimentItem, NanoServiceError> {
     let item = sqlx::query_as::<_, ExperimentItem>("
-        INSERT INTO experiment_item (name, status)
+        INSERT INTO experiments (name, status)
         VALUES ($1, $2)
         RETURNING *"
     ).bind(item.name)
