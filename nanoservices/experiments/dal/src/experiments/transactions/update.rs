@@ -28,6 +28,8 @@ impl update_experiment for JsonFileDescriptor {
         json_file_update_experiment(item)
     }
 }
+
+#[cfg(feature = "json-file")]
 impl UpdateExperiment for JsonFileDescriptor {
     fn update_experiment(item: ExperimentItem) ->
     impl Future<Output = Result<ExperimentItem, NanoServiceError>> + Send {
