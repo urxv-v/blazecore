@@ -2,7 +2,7 @@ use actix_web::{
     HttpRequest,
     HttpResponse
 };
-use core::api::basic_actions::read::{
+use coremod::api::basic_actions::read::{
     get_experiments as get_experiments_core,
     get_experiment_by_name  as get_experiment_by_name_core
 };

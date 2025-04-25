@@ -2,9 +2,9 @@ use actix_web::{
     HttpRequest,
     HttpResponse
 };
-use core::api::basic_actions::{
+use coremod::api::basic_actions::{
     delete::delete as delete_core,
-    read::get_experiment as get_experiments_core
+    read::get_experiments as get_experiments_core
 };
 use dal::experiments::transactions::{
     delete::DeleteExperiment,

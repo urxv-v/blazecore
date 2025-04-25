@@ -2,7 +2,7 @@ use actix_web::{
     HttpResponse,
     web::Json
 };
-use core::api::basic_actions::{
+use coremod::api::basic_actions::{
     update::update as update_core,
     read::get_experiments as get_experiments_core
 };

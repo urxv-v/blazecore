@@ -2,7 +2,7 @@ use actix_web::{
     web::Json,
     HttpResponse
 };
-use core::api::basic_actions::{
+use coremod::api::basic_actions::{
     create::create as create_core,
     read::get_experiments as get_experiments_core
 };
@@ -16,7 +16,7 @@ use dal::experiments::{
 use glue::errors::NanoServiceError;
 
 pub async fn create<T: SaveExperiment + GetExperiments>(
-    token: HeaderToken,   
+    //token: HeaderToken,   
     body: Json<NewExperimentItem>
 ) -> Result<HttpResponse, NanoServiceError> {
 
