@@ -1,18 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from "react-dom/client";
+import getAll from './api/read';
+import { ExperimentItem } from './interfaces/experiments';
 
 const App: React.FC = () => {
-	return(
-		<div>
-		<h1>Hello world</h1>
-		</div>
-	);
-};
+  const [data, setData] = useState<ExperimentItem[] | null>(null);
 
-const rootElement = document.getElementById('root');
-if (rootElement) {
-	const root = ReactDOM.createRoot(rootElement);
-	root.render(<App />);
-} else {
-	console.error('Root element not found');
-}
+  React.useEffect(() => {
+    const fetchData = async () => {
+      const response = await getAll();
+      setData(response.data);
+    };
+    fetchData();
+  }, []);
+
+  return (
+    <div>
+      {data ? (
+        <div>Data loaded: {JSON.stringify(data)}</div>
+      ) : (
+        <div>Loading...</div>
+      )}
+    </div>
+  );
+};
