@@ -7,7 +7,7 @@ edition = "2024"
 rust-embed = "8.7.0"
 mime_guess = "2.0.5"
 actix-web = "4.5.1"
-tokio = {
-    version = "1.35.0",
-    features = ["macros", "rt-multi-thread"]
-}
+tokio = { version = "1.35.0", features = ["macros", "rt-multi-thread"] }
+actix-cors = "0.7.0"
+actix = { path = "../nanoservices/experiments/actix" }
+experiment-dal = { path ="../nanoservices/experiments/dal", package = "dal" }

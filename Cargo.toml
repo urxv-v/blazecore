@@ -8,7 +8,7 @@ members = [
 	"glue",
 	"nanoservices/experiments/coremod",
 	"nanoservices/experiments/dal",
-	"nanoservices/experiments/actix", 
+	"nanoservices/experiments/actix", "ingress", 
 ]
 [dependencies]
 sqlx = { version = "0.6", features = ["postgres", "runtime-tokio-rustls"] }
