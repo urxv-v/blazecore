@@ -4,7 +4,7 @@ import { Url } from "./url";
 
 export default async function getAll() {
     let response = await getCall<Experiments>(
-        new Url().getAll,
+        new Url().getExperiments,
         200
     );
     return response;
