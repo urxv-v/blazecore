@@ -1,11 +1,26 @@
-# Ignore compiled output
+# Node.js dependencies
+node_modules/
+
+# Build output directories
+/public/bundle.js
+
+# Compiled Rust output
 /target
 **/target
-
 
 # Log files
 *.log
 
 # Temporary files
 *.tmp
-.env_postgres
+
+.env*
+
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Typescript and other build artifacts
+*.tsbuildinfo
+*.swp
