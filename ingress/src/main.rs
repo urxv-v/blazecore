@@ -7,6 +7,10 @@ use actix_web::{
     Responder
 };
 use rust_embed::RustEmbed;
+use actix_cors::Cors;
+use std::path::Path;
+use experiment_dal::migrations::run_migrations as run_experiment_migrations;
+use actix::api::views_factory as experiments_views_factory;
 
 async fn index() -> HttpResponse {
     HttpResponse::Ok()
@@ -58,7 +62,7 @@ async fn catch_all(req: HttpRequest) -> impl Responder {
 }
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
-    run_experiment_migrations().await;
+    let _ = run_experiment_migrations().await;
 
     HttpServer::new(|| {
         let cors = Cors::default()
@@ -68,8 +72,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .configure(experiments_views_factory)
             .wrap(cors)
-            .default_service(web::route()
-            .to(catch_all))
+            .default_service(web::route().to(catch_all))
     })
         .bind("0.0.0.0:8001")?
         .run()
