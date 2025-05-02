@@ -9,5 +9,10 @@ mime_guess = "2.0.5"
 actix-web = "4.5.1"
 tokio = { version = "1.35.0", features = ["macros", "rt-multi-thread"] }
 actix-cors = "0.7.0"
+
+# Experiments service
 actix = { path = "../nanoservices/experiments/actix" }
-experiment-dal = { path ="../nanoservices/experiments/dal", package = "dal" }
+experiment-dal = { path ="../nanoservices/experiments/dal", package = "dal", features = ["sqlx-postgres"] }
+
+auth_server = { path = "../nanoservices/auth/actix/", package = "auth_actix_server" }
+auth-dal = { path = "../nanoservices/auth/dal", package = "auth-dal" }
