@@ -1,80 +1,81 @@
-use glue::errors::{NanoServiceError, NanoServiceErrorStatus};
-use serde::{Serialize, Deserialize};
 use argon2::{
-    Argon2, 
-    PasswordHasher, 
-    PasswordVerifier, 
-    password_hash::{
-        SaltString, 
-        PasswordHash
-    }
+    Argon2, PasswordHasher, PasswordVerifier,
+    password_hash::{PasswordHash, SaltString},
 };
+use glue::errors::{NanoServiceError, NanoServiceErrorStatus};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct NewUser {
+    pub name: String,
+    pub role: String,
     pub email: String,
     pub password: String,
-    pub unique_id: String
+    pub unique_id: String,
 }
 
 impl NewUser {
-    pub fn new(email: String, password: String) 
-        -> Result<NewUser, NanoServiceError> {
+    pub fn new(
+        name: String,
+        email: String,
+        password: String,
+        role: String,
+    ) -> Result<NewUser, NanoServiceError> {
         let unique_id = uuid::Uuid::new_v4().to_string();
         let salt = SaltString::generate(&mut rand::thread_rng());
         let argon2_hasher = Argon2::default();
-        let hash = argon2_hasher.hash_password(
-            password.as_bytes(), 
-            &salt
-        ).map_err(|e|{
-            NanoServiceError::new(
-                format!("Failed to hash password: {}", e),
-                NanoServiceErrorStatus::Unknown
-            )
-        })?.to_string();
+        let hash = argon2_hasher
+            .hash_password(password.as_bytes(), &salt)
+            .map_err(|e| {
+                NanoServiceError::new(
+                    format!("Failed to hash password: {}", e),
+                    NanoServiceErrorStatus::Unknown,
+                )
+            })?
+            .to_string();
         Ok(NewUser {
+            name,
             email,
+            role,
             password: hash,
-            unique_id
+            unique_id,
         })
     }
-
 }
 
 #[derive(Deserialize, Debug, Clone, PartialEq, sqlx::FromRow, Serialize)]
 pub struct User {
     pub id: i32,
     pub email: String,
+    pub name: String,
+    pub role: String,
     pub password: String,
-    pub unique_id: String
+    pub unique_id: String,
 }
 
 impl User {
-    pub fn verify_password(&self, password: String) 
-    -> Result<bool, NanoServiceError> {
+    pub fn verify_password(&self, password: String) -> Result<bool, NanoServiceError> {
         let argon2_hasher = Argon2::default();
-        let parsed_hash = PasswordHash::new(
-            &self.password
-        ).map_err(|e|{
+        let parsed_hash = PasswordHash::new(&self.password).map_err(|e| {
             NanoServiceError::new(
                 format!("Failed to parse password hash: {}", e),
-                NanoServiceErrorStatus::Unknown
+                NanoServiceErrorStatus::Unknown,
             )
         })?;
-        let is_valid = argon2_hasher.verify_password(
-            password.as_bytes(), 
-            &parsed_hash
-        ).is_ok();
+        let is_valid = argon2_hasher
+            .verify_password(password.as_bytes(), &parsed_hash)
+            .is_ok();
         Ok(is_valid)
     }
-    
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct TrimmedUser {
     pub id: i32,
     pub email: String,
-    pub unique_id: String
+    pub name: String,
+    pub role: String,
+    pub unique_id: String,
 }
 
 impl From<User> for TrimmedUser {
@@ -82,7 +83,7 @@ impl From<User> for TrimmedUser {
         TrimmedUser {
             id: user.id,
             email: user.email,
-            unique_id: user.unique_id
+            unique_id: user.unique_id,
         }
     }
 }
