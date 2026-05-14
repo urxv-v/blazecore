@@ -7,20 +7,13 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct NewUser {
-    pub name: String,
-    pub role: String,
     pub email: String,
     pub password: String,
     pub unique_id: String,
 }
 
 impl NewUser {
-    pub fn new(
-        name: String,
-        email: String,
-        password: String,
-        role: String,
-    ) -> Result<NewUser, NanoServiceError> {
+    pub fn new(email: String, password: String) -> Result<NewUser, NanoServiceError> {
         let unique_id = uuid::Uuid::new_v4().to_string();
         let salt = SaltString::generate(&mut rand::thread_rng());
         let argon2_hasher = Argon2::default();
@@ -34,9 +27,7 @@ impl NewUser {
             })?
             .to_string();
         Ok(NewUser {
-            name,
             email,
-            role,
             password: hash,
             unique_id,
         })
@@ -47,8 +38,6 @@ impl NewUser {
 pub struct User {
     pub id: i32,
     pub email: String,
-    pub name: String,
-    pub role: String,
     pub password: String,
     pub unique_id: String,
 }
@@ -73,8 +62,6 @@ impl User {
 pub struct TrimmedUser {
     pub id: i32,
     pub email: String,
-    pub name: String,
-    pub role: String,
     pub unique_id: String,
 }
 
