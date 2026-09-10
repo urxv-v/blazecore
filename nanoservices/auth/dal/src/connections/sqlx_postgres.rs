@@ -5,7 +5,6 @@ use std::env;
 
 pub static SQLX_POSTGRES_POOL: Lazy<PgPool> = Lazy::new(|| {
     let connection_string = env::var("DATABASE_URL").unwrap();
-    let connection_string = env::var("DATABASE_URL").unwrap();
 
     let max_connections = match std::env::var("AUTH_MAX_CONNECTIONS") {
         Ok(val) => val,
