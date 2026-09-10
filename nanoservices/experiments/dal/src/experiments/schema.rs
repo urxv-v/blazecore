@@ -1,11 +1,14 @@
 use serde::{Serialize, Deserialize};
 use super::enums::TaskStatus;
 use std::collections::HashMap;
+use crate::telemetry::schema::FieldDaqSetup;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct NewExperimentItem {
     pub name: String,
-    pub status: TaskStatus
+    pub status: TaskStatus,
+    #[serde(default)]
+    pub field_daq: Option<FieldDaqSetup>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]

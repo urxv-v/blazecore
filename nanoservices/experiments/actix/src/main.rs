@@ -5,8 +5,6 @@ use actix_web::{
 };
 use actix_cors::Cors;
 use dal::migrations::run_migrations;
-mod api;
-
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
     if let Err(e) = run_migrations().await{
@@ -14,14 +12,21 @@ async fn main() -> std::io::Result<()> {
         return Err(std::io::Error::new(std::io::ErrorKind::Other, "Database migration failed"));
     }
 
-    let server_address = "127.0.0.1:8080"; 
+    let server_address = "0.0.0.0:8080"; 
     println!("🚀 Server running at {}", server_address);
 
-    HttpServer::new(|| {
+    let gateway_state = actix::gateway::GatewayState::new();
+    let gateway_config = actix::gateway::GatewayConfig::from_env()
+        .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidInput, error))?;
+    let _gateway_task = actix::gateway::start(gateway_config, gateway_state.clone());
+
+    HttpServer::new(move || {
+        let gateway_state = gateway_state.clone();
         App::new()
+            .app_data(actix_web::web::Data::new(gateway_state))
             .wrap(Logger::default()) 
             .wrap(Cors::permissive()) 
-            .configure(api::views_factory)
+            .configure(actix::views_factory)
     })
     .workers(4)
     .bind(server_address)?

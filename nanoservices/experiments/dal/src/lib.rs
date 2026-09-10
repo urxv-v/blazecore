@@ -1,4 +1,5 @@
 pub mod experiments;
+pub mod telemetry;
 pub mod connections;
 #[cfg(feature = "json-file")]
 pub mod json_file;
