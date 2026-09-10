@@ -1,8 +1,7 @@
 const esbuild = require('esbuild');
-const cssModulesPlugin = require('esbuild-css-modules-plugin');
+const path = require('path');
 
 esbuild.build({
-  plugins: [cssModulesPlugin()],
   entryPoints: ['./src/index.tsx'],
   bundle: true,
   outfile: 'public/bundle.js',
@@ -10,7 +9,6 @@ esbuild.build({
   define: {
     'process.env.NODE_ENV': '"production"',
   },
-
   minify: true,
   sourcemap: true,
   loader: {
@@ -18,6 +16,26 @@ esbuild.build({
     '.tsx': 'tsx',
     '.ts': 'ts',
     '.wasm': 'binary',
-    '.css': 'css'
+    '.css': 'text'
   },
+  plugins: [
+    {
+      name: 'css-inject',
+      setup(build) {
+        build.onLoad({ filter: /\.css$/ }, async (args) => {
+          const contents = await require('fs').promises.readFile(args.path, 'utf8');
+          return {
+            contents: `
+              (() => {
+                const style = document.createElement('style');
+                style.textContent = ${JSON.stringify(contents)};
+                document.head.appendChild(style);
+              })();
+            `,
+            loader: 'js'
+          };
+        });
+      }
+    }
+  ]
 }).catch(() => process.exit(1));
