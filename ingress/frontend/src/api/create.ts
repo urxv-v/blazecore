@@ -2,10 +2,11 @@ import { NewExperimentItem,ExperimentItem, TaskStatus } from "../interfaces/expe
 import { postCall } from "./utils";
 import { Url } from "./url";
 
-export async function createExperimentItemCall(name: string) {
+export async function createExperimentItemCall(name: string, fieldDaq?: NewExperimentItem['field_daq']) {
     const experimentItem: NewExperimentItem = {
         name: name,
-        status: TaskStatus.PENDING
+        status: TaskStatus.PENDING,
+        field_daq: fieldDaq,
     };
     return postCall<NewExperimentItem, ExperimentItem>(
         new Url().create, experimentItem, 201
