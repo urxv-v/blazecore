@@ -25,5 +25,6 @@ export const login = async (email: string, password: string): Promise<string> =>
             console.error('Unexpected error:', error);
         }
         alert('Login failed. Please try again.');
+        throw error;
     }
 };

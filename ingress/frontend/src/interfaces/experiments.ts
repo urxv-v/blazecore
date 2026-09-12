@@ -49,3 +49,9 @@ export interface DeviceItemItem {
 
 // Type alias for backward compatibility
 export type ExperimentItem = DeviceItem;
+
+export interface Experiments {
+    experiments?: Record<string, any>;
+    pending?: any[];
+    done?: any[];
+}
