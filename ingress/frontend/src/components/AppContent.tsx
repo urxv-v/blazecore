@@ -44,7 +44,7 @@ const AppContent: React.FC = () => {
         experimentsArray = Object.entries(experimentsData).map(([name, exp]: [string, any]) => ({
           id: exp.id || 0,
           name: name,
-          status: exp.status || 'PENDING'
+          status: (exp.status || 'PENDING').toUpperCase() as TaskStatus
         }));
       } else if (responseData.pending || responseData.done) {
         // Format: { pending: [...], done: [...] }
@@ -74,10 +74,16 @@ const AppContent: React.FC = () => {
 
   const createExperiment = async (name: string, fieldDaq?: FieldDaqSetup) => {
     try {
-      await createExperimentItemCall(name, fieldDaq);
+      const response = await createExperimentItemCall(name, fieldDaq);
+      if (response.error || response.status !== 201) {
+        console.error('Failed to create experiment. Backend returned:', response);
+        alert(`Failed to create experiment: ${response.error || 'Unknown error'}`);
+        return;
+      }
       await fetchExperiments();
     } catch (error) {
       console.error('Failed to create experiment:', error);
+      alert('Failed to create experiment due to a network or unexpected error.');
     }
   };
 
@@ -86,11 +92,17 @@ const AppContent: React.FC = () => {
       const exp = experiments.find(e => e.id === id);
       if (exp) {
         const newStatus: TaskStatus = exp.status === 'DONE' ? TaskStatus.PENDING : TaskStatus.DONE;
-        await updateExperimentCall(exp.name, newStatus, id);
+        const response = await updateExperimentCall(exp.name, newStatus, id);
+        if (response.error || response.status !== 200) {
+          console.error('Failed to toggle experiment status. Backend returned:', response);
+          alert(`Failed to update experiment status: ${response.error || 'Unknown error'}`);
+          return;
+        }
         await fetchExperiments();
       }
     } catch (error) {
       console.error('Failed to toggle experiment:', error);
+      alert('Failed to update experiment status due to a network or unexpected error.');
     }
   };
 
@@ -98,11 +110,17 @@ const AppContent: React.FC = () => {
     try {
       const exp = experiments.find(e => e.id === id);
       if (exp) {
-        await deleteExperimentCall(exp.name);
+        const response = await deleteExperimentCall(exp.name);
+        if (response.error || response.status !== 200) {
+          console.error('Failed to delete experiment. Backend returned:', response);
+          alert(`Failed to delete experiment: ${response.error || 'Unknown error'}`);
+          return;
+        }
         await fetchExperiments();
       }
     } catch (error) {
       console.error('Failed to delete experiment:', error);
+      alert('Failed to delete experiment due to a network or unexpected error.');
     }
   };
 

@@ -1,4 +1,4 @@
-import { Experiments, Experiment, TaskStatus, ExperimentItem } from "../interfaces/experiments";
+import { Experiments, TaskStatus, ExperimentItem } from "../interfaces/experiments";
 import { putCall } from "./utils";
 import { Url } from "./url";
 
