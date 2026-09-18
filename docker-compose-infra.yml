@@ -1,0 +1,15 @@
+services:
+  broker:
+    image: docker.io/eclipse-mosquitto:2
+    container_name: blazecore-broker
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    networks:
+      - blazecore
+
+networks:
+  blazecore:
+    name: blazecore-net
+    driver: bridge
